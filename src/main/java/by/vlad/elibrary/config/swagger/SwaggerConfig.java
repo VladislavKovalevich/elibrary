@@ -16,7 +16,7 @@ public class SwaggerConfig {
     public GroupedOpenApi publicApi(){
         return GroupedOpenApi.builder()
                 .group("library-system.api")
-                .pathsToMatch("/main/**", "/client/**")
+                .pathsToMatch("/genre/**", "/publisher/**", "/author/**", "/book/**", "/client/**")
                 .packagesToScan("by.vlad.elibrary.controller")
                 .build();
     }

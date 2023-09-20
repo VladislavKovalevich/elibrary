@@ -1,6 +1,5 @@
 package by.vlad.elibrary.config.security;
 
-import by.vlad.elibrary.service.ClientService;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.io.Decoders;
@@ -47,7 +46,7 @@ public class JwtService {
                 .setSubject(userDetails.getUsername())
                 .claim(ROLE_CLAIM, role)
                 .setIssuedAt(new Date(System.currentTimeMillis()))
-                .setExpiration(new Date(System.currentTimeMillis() + 1000 * 60 * jwtExpiration))
+                .setExpiration(new Date(System.currentTimeMillis() + 1000 * 60 * 60 * jwtExpiration))
                 .signWith(getSignInKey())
                 .compact();
     }
