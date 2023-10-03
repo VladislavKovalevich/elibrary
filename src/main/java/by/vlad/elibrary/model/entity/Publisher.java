@@ -20,7 +20,7 @@ import lombok.ToString;
 @ToString(exclude = {"id"})
 @Builder
 @Entity
-@Table(name = "publisher")
+@Table(name = "publishers", schema = "e_library")
 public class Publisher {
 
     @Id

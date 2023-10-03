@@ -6,7 +6,7 @@ import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
-import jakarta.persistence.OneToOne;
+import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -23,7 +23,7 @@ import java.time.Year;
 @ToString(exclude = {"id"})
 @Builder
 @Entity
-@Table(name = "book")
+@Table(name = "books", schema = "e_library")
 public class Book implements Serializable {
 
     @Id
@@ -45,16 +45,21 @@ public class Book implements Serializable {
     @Column(name = "description")
     private String description;
 
-    @OneToOne
+    @ManyToOne
     @JoinColumn(name = "genre_id", unique = false)
     private Genre genre;
 
-    @OneToOne
+    @ManyToOne
     @JoinColumn(name = "author_id", unique = false)
     private Author author;
 
-    @OneToOne
+    @ManyToOne
     @JoinColumn(name = "publisher_id", unique = false)
     private Publisher publisher;
 
+
+    public Book(Long id, Integer copiesNumber) {
+        this.id = id;
+        this.copiesNumber = copiesNumber;
+    }
 }

@@ -17,6 +17,6 @@ public class RestExceptionHandler {
 
     @ExceptionHandler(InvalidRequestDataException.class)
     protected ResponseEntity<String> invalidRequestDataHandler(InvalidRequestDataException e){
-        return new ResponseEntity<>(e.getMessage(), HttpStatus.NOT_FOUND);
+        return new ResponseEntity<>(e.getMessage(), HttpStatus.BAD_REQUEST);
     }
 }

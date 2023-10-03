@@ -12,6 +12,8 @@ import org.springframework.stereotype.Service;
 
 import java.util.List;
 
+import static by.vlad.elibrary.exception.util.ExceptionMessage.PUBLISHER_NOT_FOUND;
+
 @Service
 @RequiredArgsConstructor
 public class PublisherServiceImpl implements BookComponentsService<PublisherResponseDto, PublisherRequestDto> {
@@ -23,7 +25,7 @@ public class PublisherServiceImpl implements BookComponentsService<PublisherResp
     @Override
     public PublisherResponseDto returnComponentById(Long publisherId) {
         Publisher publisher = publisherRepository.findById(publisherId)
-                .orElseThrow(()-> new InvalidRequestDataException("publisher with this id isn't exists"));
+                .orElseThrow(()-> new InvalidRequestDataException(PUBLISHER_NOT_FOUND));
 
         return publisherMapper.fromEntityToDto(publisher);
     }
@@ -47,7 +49,7 @@ public class PublisherServiceImpl implements BookComponentsService<PublisherResp
     @Override
     public PublisherResponseDto updateComponent(PublisherRequestDto dto) {
         if (!publisherRepository.existsById(dto.getId())){
-            throw new InvalidRequestDataException("publisher with this id isn't exists");
+            throw new InvalidRequestDataException(PUBLISHER_NOT_FOUND);
         }
 
         Publisher publisher = publisherMapper.fromDtoToEntity(dto);

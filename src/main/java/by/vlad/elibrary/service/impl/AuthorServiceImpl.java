@@ -12,6 +12,8 @@ import org.springframework.stereotype.Service;
 
 import java.util.List;
 
+import static by.vlad.elibrary.exception.util.ExceptionMessage.AUTHOR_NOT_FOUND;
+
 @Service
 @RequiredArgsConstructor
 public class AuthorServiceImpl implements BookComponentsService<AuthorResponseDto, AuthorRequestDto> {
@@ -22,7 +24,7 @@ public class AuthorServiceImpl implements BookComponentsService<AuthorResponseDt
     @Override
     public AuthorResponseDto returnComponentById(Long authorId) {
         Author author = authorRepository.findById(authorId)
-                .orElseThrow(()-> new InvalidRequestDataException("author with this id isn't exists"));
+                .orElseThrow(()-> new InvalidRequestDataException(AUTHOR_NOT_FOUND));
         return authorMapper.fromEntityToDto(author);
     }
 
@@ -46,7 +48,7 @@ public class AuthorServiceImpl implements BookComponentsService<AuthorResponseDt
     @Override
     public AuthorResponseDto updateComponent(AuthorRequestDto dto) {
         if (!authorRepository.existsById(dto.getId())){
-            throw new InvalidRequestDataException("author with this id isn't exists");
+            throw new InvalidRequestDataException(AUTHOR_NOT_FOUND);
         }
         Author updatedAuthor = authorRepository.save(authorMapper.fromDtoToEntity(dto));
         return authorMapper.fromEntityToDto(updatedAuthor);
