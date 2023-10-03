@@ -15,6 +15,12 @@ import org.springframework.stereotype.Service;
 
 import java.util.List;
 
+import static by.vlad.elibrary.exception.util.ExceptionMessage.AUTHOR;
+import static by.vlad.elibrary.exception.util.ExceptionMessage.BOOK_NOT_FOUND;
+import static by.vlad.elibrary.exception.util.ExceptionMessage.GENRE;
+import static by.vlad.elibrary.exception.util.ExceptionMessage.PUBLISHER;
+import static by.vlad.elibrary.exception.util.ExceptionMessage._NOT_FOUND;
+
 @Service
 @RequiredArgsConstructor
 public class BookServiceImpl implements BookService {
@@ -32,7 +38,7 @@ public class BookServiceImpl implements BookService {
     @Override
     public BookResponseDto returnBookById(Long bookId) {
         Book book = bookRepository.findById(bookId)
-                .orElseThrow(() -> new NotFoundException("book with this id isn't exists"));
+                .orElseThrow(() -> new NotFoundException(BOOK_NOT_FOUND));
 
         return bookMapper.fromBookToDto(book);
     }
@@ -49,7 +55,7 @@ public class BookServiceImpl implements BookService {
         String component = checkBookComponentsExisting(bookDataRequestDto);
 
         if (component != null){
-            throw new NotFoundException(component + " with this id isn't exists");
+            throw new NotFoundException(component + _NOT_FOUND);
         }
 
         Book book = bookMapper.fromDtoToBook(bookDataRequestDto);
@@ -62,7 +68,7 @@ public class BookServiceImpl implements BookService {
     @Override
     public BookResponseDto updateBook(BookDataRequestDto bookDataRequestDto) {
         if(!bookRepository.existsById(bookDataRequestDto.getId())){
-            throw new NotFoundException("book with this id isn't exists");
+            throw new NotFoundException(BOOK_NOT_FOUND);
         }
 
         return createNewBook(bookDataRequestDto);
@@ -72,15 +78,15 @@ public class BookServiceImpl implements BookService {
         String result = null;
 
         if (!authorRepository.existsById(bookDataRequestDto.getAuthorId())){
-            result = "author";
+            result = AUTHOR;
         }
 
         if (!genreRepository.existsById(bookDataRequestDto.getGenreId())){
-            result = "genre";
+            result = GENRE;
         }
 
         if (!publisherRepository.existsById(bookDataRequestDto.getPublisherId())){
-            result = "publisher";
+            result = PUBLISHER;
         }
 
         return result;

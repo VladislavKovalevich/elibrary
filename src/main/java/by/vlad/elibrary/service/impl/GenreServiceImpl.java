@@ -12,6 +12,8 @@ import org.springframework.stereotype.Service;
 
 import java.util.List;
 
+import static by.vlad.elibrary.exception.util.ExceptionMessage.GENRE_NOT_FOUND;
+
 @Service
 @RequiredArgsConstructor
 public class GenreServiceImpl implements BookComponentsService<GenreResponseDto, GenreRequestDto> {
@@ -23,7 +25,7 @@ public class GenreServiceImpl implements BookComponentsService<GenreResponseDto,
     @Override
     public GenreResponseDto returnComponentById(Long componentId) {
         Genre genre = genreRepository.findById(componentId)
-                .orElseThrow(()-> new InvalidRequestDataException("Genre with this id isn't exists"));
+                .orElseThrow(()-> new InvalidRequestDataException(GENRE_NOT_FOUND));
 
         return genreMapper.fromEntityToDto(genre);
     }
@@ -47,7 +49,7 @@ public class GenreServiceImpl implements BookComponentsService<GenreResponseDto,
     @Override
     public GenreResponseDto updateComponent(GenreRequestDto dto) {
         if (!genreRepository.existsById(dto.getId())){
-            throw new InvalidRequestDataException("genre with this id isn't exists");
+            throw new InvalidRequestDataException(GENRE_NOT_FOUND);
         }
 
         Genre genre = genreMapper.fromDtoToEntity(dto);

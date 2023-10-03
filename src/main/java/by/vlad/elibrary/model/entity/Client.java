@@ -28,7 +28,7 @@ import java.util.List;
 @ToString(exclude = {"id"})
 @Builder
 @Entity
-@Table(name = "client")
+@Table(name = "clients", schema = "e_library")
 public class Client implements UserDetails {
 
     @Id

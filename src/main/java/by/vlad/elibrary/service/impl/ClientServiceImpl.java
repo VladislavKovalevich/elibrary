@@ -16,6 +16,10 @@ import org.springframework.stereotype.Service;
 
 import java.util.Objects;
 
+import static by.vlad.elibrary.exception.util.ExceptionMessage.CLIENT_NOT_FOUND;
+import static by.vlad.elibrary.exception.util.ExceptionMessage.PASSWORDS_MISMATCH;
+import static by.vlad.elibrary.exception.util.ExceptionMessage.USER_EMAIL_ALREADY_EXISTS;
+
 @Service
 @RequiredArgsConstructor
 public class ClientServiceImpl implements ClientService {
@@ -29,11 +33,11 @@ public class ClientServiceImpl implements ClientService {
     @Override
     public String createNewClient(UserRegisterDataRequestDto dto) {
         if (clientRepository.countByEmail(dto.getEmail()) != 0){
-            throw new InvalidRequestDataException("User with this email is already exists");
+            throw new InvalidRequestDataException(USER_EMAIL_ALREADY_EXISTS);
         }
 
         if (!Objects.equals(dto.getPassword(), dto.getRepeatedPassword())){
-            throw new InvalidRequestDataException("Passwords must be identical");
+            throw new InvalidRequestDataException(PASSWORDS_MISMATCH);
         }
 
         Client client = clientMapper.convertUserRegistrationDataRequestDtoToClientEntity(dto);
@@ -49,7 +53,7 @@ public class ClientServiceImpl implements ClientService {
     @Override
     public boolean authorizeClient(UserLoginDataRequestDto dto) {
         Client client = clientRepository.findByEmail(dto.getEmail()).orElseThrow(()->{
-            throw new InvalidRequestDataException("User with this username is not exists");
+            throw new InvalidRequestDataException(CLIENT_NOT_FOUND);
         });
 
         return passwordEncoder.verifyPassword(dto.getPassword(), client.getPassword());
@@ -58,7 +62,7 @@ public class ClientServiceImpl implements ClientService {
     @Override
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
         return clientRepository.findByEmail(username).orElseThrow(()->{
-           throw new InvalidRequestDataException("User with this username is not exists");
+           throw new InvalidRequestDataException(CLIENT_NOT_FOUND);
         });
     }
 }
