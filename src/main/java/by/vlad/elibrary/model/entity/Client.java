@@ -51,6 +51,9 @@ public class Client implements UserDetails {
     @Enumerated(EnumType.STRING)
     private Role role;
 
+    @Column(name = "is_non_locked")
+    private Boolean isNonLocked;
+
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
@@ -74,7 +77,7 @@ public class Client implements UserDetails {
 
     @Override
     public boolean isAccountNonLocked() {
-        return true;
+        return isNonLocked;
     }
 
     @Override

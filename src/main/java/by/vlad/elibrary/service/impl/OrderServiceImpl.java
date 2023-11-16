@@ -30,8 +30,6 @@ import static by.vlad.elibrary.exception.util.ExceptionMessage.ORDER_IS_ALREADY_
 import static by.vlad.elibrary.exception.util.ExceptionMessage.ORDER_NOT_FOUND;
 import static by.vlad.elibrary.exception.util.ExceptionMessage.WRONG_ORDER_STATUS;
 
-//TODO допилить изменение счетчика колличества копий при разрешении заказа и его возврата
-
 @Service
 @RequiredArgsConstructor
 public class OrderServiceImpl implements OrderService {
@@ -47,14 +45,14 @@ public class OrderServiceImpl implements OrderService {
     @Override
     public OrderResponseDto returnOrderDetailsById(Long id) {
         Order order = orderRepository.findById(id)
-                .orElseThrow(()-> new InvalidRequestDataException(ORDER_NOT_FOUND));
+                .orElseThrow(() -> new InvalidRequestDataException(ORDER_NOT_FOUND));
 
         return orderMapper.fromEntityToDto(order);
     }
 
     @Override
     public List<OrderResponseDto> returnOrdersByUserId(Long userId) {
-        if (!clientRepository.existsById(userId)){
+        if (!clientRepository.existsById(userId)) {
             throw new InvalidRequestDataException(CLIENT_NOT_FOUND);
         }
 
@@ -178,16 +176,22 @@ public class OrderServiceImpl implements OrderService {
 
         List<Long> bookIds = new ArrayList<>();
 
-        for (Book book: order.getBooks()){
-            if (book.getCopiesNumber() == 0){
+        for (Book book : order.getBooks()) {
+            if (book.getCopiesNumber() == 0) {
                 bookIds.add(book.getId());
             }
         }
 
-        if (!bookIds.isEmpty()){
+        if (!bookIds.isEmpty()) {
             throw new InvalidRequestDataException("Books with this ids " + bookIds + " have not enough copies for applying this order");
             //TODO создать отдельный тип исключения для передачи точных данных об отсутствующих книгах
         }
+
+        List<Book> books = order.getBooks().stream()
+                .peek(book -> book.setCopiesNumber(book.getCopiesNumber() - 1))
+                .toList();
+
+        order.setBooks(books);
 
         Order updatedOrder = orderRepository.save(order);
 
@@ -229,12 +233,28 @@ public class OrderServiceImpl implements OrderService {
 
         order.setReturnedDate(returnedDate);
 
-        if (ChronoUnit.DAYS.between(returnedDate, order.getAcceptedDate()) > 20){
+        if (ChronoUnit.DAYS.between(returnedDate, order.getAcceptedDate()) > 20) {
             order.setStatus(OrderStatus.OVERDUE);
-            //TODO запрос в базу на проверку колличества просроченных зазаков за последний месяц, в случае превышения лимита блокировка на 10 дней.
-        }else{
+
+            Integer overdueCount = orderRepository.countOrdersByStatusAndClientEmailAndReturnedDateBetween(
+                    OrderStatus.OVERDUE,
+                    currentClientEmail,
+                    order.getReturnedDate().minusDays(30),
+                    order.getReturnedDate()
+            );
+
+            if (overdueCount > 3){
+                order.getClient().setIsNonLocked(false);
+            }
+        } else {
             order.setStatus(OrderStatus.RETURNED);
         }
+
+        List<Book> books = order.getBooks().stream()
+                .peek(book -> book.setCopiesNumber(book.getCopiesNumber() + 1))
+                .toList();
+
+        order.setBooks(books);
 
         Order updatedOrder = orderRepository.save(order);
 
