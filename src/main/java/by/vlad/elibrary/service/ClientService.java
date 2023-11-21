@@ -8,5 +8,5 @@ public interface ClientService extends UserDetailsService {
 
     String createNewClient(UserRegisterDataRequestDto dto);
 
-    boolean authorizeClient(UserLoginDataRequestDto dto);
+    Boolean authorizeClient(UserLoginDataRequestDto dto);
 }

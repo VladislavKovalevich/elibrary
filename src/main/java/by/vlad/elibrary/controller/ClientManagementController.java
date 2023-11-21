@@ -18,7 +18,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
         name = "Client controller",
         description = """
                 Controller to manipulate with users in the App.
-                This controller allows users to register in system, login, logout and change profile parameters. Also user with ADMIN role can 
+                This controller allows users to register in system, login, logout and change profile parameters. Also user with ADMIN role can
                 check users list and block simple users. To work with ADMIN role you need to authorize in system using admin credentials"""
 )
 @RequestMapping("/client/")
@@ -36,12 +36,12 @@ public interface ClientManagementController {
 
     @Operation(summary = "Authorize client in system")
     @ApiResponses(value = {
-            @ApiResponse(responseCode = "200", description = "Successful operation", content = @Content(mediaType = "application/json", schema = @Schema(implementation = Void.class))),
+            @ApiResponse(responseCode = "200", description = "Successful operation", content = @Content(mediaType = "application/json", schema = @Schema(implementation = String.class))),
             @ApiResponse(responseCode = "400", description = "Bad request", content = @Content(mediaType = "text/plain", schema = @Schema(implementation = String.class, example = "Bad request"))),
             @ApiResponse(responseCode = "404", description = "Not found", content = @Content(mediaType = "text/plain", schema = @Schema(implementation = String.class, example = "Book not found"))),
             @ApiResponse(responseCode = "500", description = "Internal server error", content = @Content(mediaType = "text/plain", schema = @Schema(implementation = String.class, example = "Internal server error")))
     })
     @PostMapping("login")
-    ResponseEntity<Void> loginClient(@RequestBody UserLoginDataRequestDto dto);
+    ResponseEntity<String> loginClient(@RequestBody UserLoginDataRequestDto dto);
 
 }

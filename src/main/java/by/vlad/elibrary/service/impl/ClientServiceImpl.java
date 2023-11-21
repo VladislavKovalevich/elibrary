@@ -11,11 +11,11 @@ import by.vlad.elibrary.model.entity.Role;
 import by.vlad.elibrary.repository.ClientRepository;
 import by.vlad.elibrary.repository.OrderRepository;
 import by.vlad.elibrary.service.ClientService;
-import by.vlad.elibrary.util.PasswordEncoder;
 import lombok.RequiredArgsConstructor;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
@@ -27,6 +27,7 @@ import java.util.Optional;
 import static by.vlad.elibrary.exception.util.ExceptionMessage.CLIENT_NOT_FOUND;
 import static by.vlad.elibrary.exception.util.ExceptionMessage.PASSWORDS_MISMATCH;
 import static by.vlad.elibrary.exception.util.ExceptionMessage.USER_EMAIL_ALREADY_EXISTS;
+import static by.vlad.elibrary.exception.util.ExceptionMessage.WRONG_CREDENTIALS;
 
 @Service
 @RequiredArgsConstructor
@@ -62,12 +63,12 @@ public class ClientServiceImpl implements ClientService {
     }
 
     @Override
-    public boolean authorizeClient(UserLoginDataRequestDto dto) {
+    public Boolean authorizeClient(UserLoginDataRequestDto dto) {
         Client client = clientRepository.findByEmail(dto.getEmail()).orElseThrow(()->{
-            throw new InvalidRequestDataException(CLIENT_NOT_FOUND);
+            throw new InvalidRequestDataException(WRONG_CREDENTIALS);
         });
 
-        return passwordEncoder.verifyPassword(dto.getPassword(), client.getPassword());
+        return passwordEncoder.matches(dto.getPassword(), client.getPassword());
     }
 
     @Override
@@ -79,7 +80,7 @@ public class ClientServiceImpl implements ClientService {
 
     @Scheduled(cron = "0 0 0 * * *")
     public void checkUserState() {
-        List<Client> clientList =  clientRepository.findClientsByAccountNonLocked(false);
+        List<Client> clientList =  clientRepository.findClientsByIsNonLocked(false);
         LocalDate date = LocalDate.now();
 
         for (Client c : clientList) {

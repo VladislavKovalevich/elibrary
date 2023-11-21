@@ -14,5 +14,5 @@ public interface ClientRepository extends JpaRepository<Client, Long> {
 
     Optional<Client> findByEmail(String email);
 
-    List<Client> findClientsByAccountNonLocked(boolean flag);
+    List<Client> findClientsByIsNonLocked(Boolean flag);
 }
