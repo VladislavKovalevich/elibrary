@@ -53,13 +53,14 @@ public class ClientServiceImpl implements ClientService {
 
         Client client = clientMapper.convertUserRegistrationDataRequestDtoToClientEntity(dto);
 
+
         client.setPassword(passwordEncoder.encode(client.getPassword()));
         client.setRole(Role.CLIENT);
         client.setIsNonLocked(true);
 
-        clientRepository.save(client);
+        Client savedClient = clientRepository.save(client);
 
-        return "OK";
+        return savedClient.getId().toString();
     }
 
     @Override

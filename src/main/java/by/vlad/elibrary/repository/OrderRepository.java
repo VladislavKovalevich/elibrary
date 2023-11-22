@@ -23,7 +23,7 @@ public interface OrderRepository extends JpaRepository<Order, Long> {
             LocalDate end
     );
 
-    Optional<Order> findTopByClientIdAndStatusOrderByReturnedDateDesc(Long aLong, OrderStatus status);
+    Optional<Order> findTopByClientIdAndStatusOrderByReturnedDateDesc(Long id, OrderStatus status);
 
     List<Order> findOrderByClientIdAndStatus(Long id, OrderStatus status);
 

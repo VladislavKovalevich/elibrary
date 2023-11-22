@@ -54,13 +54,13 @@ public class ClientManagementControllerImplTest {
 
     @Test
     public void registerClientShouldReturnNewClient() throws Exception {
-        when(clientService.createNewClient(getUserRegisterDto())).thenReturn("OK");
+        when(clientService.createNewClient(getUserRegisterDto())).thenReturn("1");
 
         mockMvc.perform(post("/client/register")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(new ObjectMapper().writeValueAsString(getUserRegisterDto())))
                 .andExpect(status().isCreated())
-                .andExpect(content().string("OK"));
+                .andExpect(content().string(String.valueOf(1)));
 
         verify(clientService, times(1)).createNewClient(getUserRegisterDto());
     }

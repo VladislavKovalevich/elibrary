@@ -28,11 +28,11 @@ public class ClientRepositoryTest {
     @BeforeEach
     public void setUp(){
         testClient = Client.builder()
-                .name("Test")
-                .surname("Test")
-                .password("Pass")
-                .isNonLocked(true)
+                .name("Name")
+                .surname("Surname")
                 .email("email1test@gmail.com")
+                .password("Password")
+                .isNonLocked(true)
                 .build();
     }
 
