@@ -37,7 +37,7 @@ public interface OrderController {
             @ApiResponse(responseCode = "500", description = "Internal server error", content = @Content(mediaType = "text/plain", schema = @Schema(implementation = String.class, example = "Internal server error")))
     })
     @GetMapping
-    ResponseEntity<List<OrderResponseDto>> returnOrdersAll();
+    ResponseEntity<List<OrderResponseDto>> returnAllOrders();
 
     @Operation(summary = "Create new order")
     @ApiResponses(value = {

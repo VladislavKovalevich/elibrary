@@ -233,13 +233,15 @@ public class OrderServiceImpl implements OrderService {
 
         order.setReturnedDate(returnedDate);
 
-        if (ChronoUnit.DAYS.between(returnedDate, order.getAcceptedDate()) > 20) {
+        if (ChronoUnit.DAYS.between(order.getAcceptedDate(), returnedDate) > 20) {
             order.setStatus(OrderStatus.OVERDUE);
+
+            LocalDate startDate = order.getReturnedDate().minusDays(30);
 
             Integer overdueCount = orderRepository.countOrdersByStatusAndClientEmailAndReturnedDateBetween(
                     OrderStatus.OVERDUE,
                     currentClientEmail,
-                    order.getReturnedDate().minusDays(30),
+                    startDate,
                     order.getReturnedDate()
             );
 

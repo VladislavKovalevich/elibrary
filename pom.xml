@@ -143,7 +143,52 @@
                     </annotationProcessorPaths>
                 </configuration>
             </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-surefire-plugin</artifactId>
+                <version>3.0.0-M4</version>
+                <configuration>
+                    <!--suppress UnresolvedMavenProperty -->
+                    <argLine>${jacocoArgLine}</argLine>
+                    <reportsDirectory>target/surefire</reportsDirectory>
+                    <encoding>UTF-16</encoding>
+                </configuration>
+            </plugin>
+            <plugin>
+                <groupId>org.jacoco</groupId>
+                <artifactId>jacoco-maven-plugin</artifactId>
+                <version>0.8.8</version>
+                <executions>
+                    <execution>
+                        <id>pre-unit-tests</id>
+                        <goals>
+                            <goal>prepare-agent</goal>
+                        </goals>
+                        <configuration>
+                            <propertyName>jacocoArgLine</propertyName>
+                            <destFile>target/site/jacoco/jacoco.exec</destFile>
+                        </configuration>
+                    </execution>
+                    <execution>
+                        <id>post-unit-test</id>
+                        <phase>test</phase>
+                        <goals>
+                            <goal>report</goal>
+                        </goals>
+                        <configuration>
+                            <dataFile>target/site/jacoco/jacoco.exec</dataFile>
+                            <outputDirectory>target/site/jacoco</outputDirectory>
+                            <excludes>
+                                <exclude>**/model/**</exclude>
+                                <exclude>**/exception/**</exclude>
+                                <exclude>**/config/**</exclude>
+                            </excludes>
+                            <sourceEncoding>UTF-16</sourceEncoding>
+                            <outputEncoding>UTF-16</outputEncoding>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
         </plugins>
     </build>
-
 </project>
