@@ -40,6 +40,6 @@ public abstract class BookMapper {
 
     @Named("convertToYear")
     public Year convertToYear(String year){
-        return Year.parse(year); //бросает исключение в случае ошибки парсинга
+        return Year.parse(year);
     }
 }

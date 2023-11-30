@@ -16,7 +16,6 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
-import java.util.Locale;
 import java.util.Optional;
 
 import static by.vlad.elibrary.exception.util.ExceptionMessage.PASSWORDS_MISMATCH;
@@ -46,10 +45,20 @@ public class ClientServiceImplTest {
     @Mock
     private PasswordEncoder passwordEncoder;
 
-    @Test
-    public void createNewClientShouldReturnNewClient() {
+    private final UserRegisterDataRequestDto userRegisterDto;
 
-        UserRegisterDataRequestDto dto = UserRegisterDataRequestDto.builder()
+    private final UserRegisterDataRequestDto userRegisterDtoWithWrongPas;
+
+    private final UserLoginDataRequestDto userLoginDto;
+
+    private final Client client;
+
+    private final Client savedClient;
+
+    private final Client loginClient;
+
+    public ClientServiceImplTest() {
+        userRegisterDto = UserRegisterDataRequestDto.builder()
                 .email("test1user@gmail.com")
                 .name("Name")
                 .surname("Surname")
@@ -57,126 +66,105 @@ public class ClientServiceImplTest {
                 .repeatedPassword("qwerty123")
                 .build();
 
-        Client client = Client.builder()
-                .email(dto.getEmail())
-                .name(dto.getName())
-                .surname(dto.getSurname())
+        userRegisterDtoWithWrongPas = UserRegisterDataRequestDto.builder()
+                .email("test1user@gmail.com")
+                .name("Name")
+                .surname("Surname")
+                .password("qwerty123")
+                .repeatedPassword("qwerty1233")
                 .build();
 
-        Client savedClient = Client.builder()
+        client = Client.builder()
+                .email(userRegisterDto.getEmail())
+                .name(userRegisterDto.getName())
+                .surname(userRegisterDto.getSurname())
+                .build();
+
+        savedClient = Client.builder()
                 .id(1L)
-                .email(dto.getEmail())
-                .name(dto.getName())
-                .surname(dto.getSurname())
+                .email(userRegisterDto.getEmail())
+                .name(userRegisterDto.getName())
+                .surname(userRegisterDto.getSurname())
                 .password("12E45FQFD452FFQ331")
                 .isNonLocked(true)
                 .role(Role.CLIENT)
                 .build();
 
-        when(clientRepository.countByEmail(dto.getEmail())).thenReturn(0);
-        when(clientMapper.convertUserRegistrationDataRequestDtoToClientEntity(dto)).thenReturn(client);
+        userLoginDto = UserLoginDataRequestDto.builder()
+                .email("test1user@gmail.com")
+                .password("qwerty123")
+                .build();
+
+        loginClient = Client.builder()
+                .id(1L)
+                .email(userLoginDto.getEmail())
+                .password(userLoginDto.getPassword())
+                .build();
+    }
+
+    @Test
+    public void createNewClientShouldReturnNewClient() {
+        when(clientRepository.countByEmail(userRegisterDto.getEmail())).thenReturn(0);
+        when(clientMapper.convertUserRegistrationDataRequestDtoToClientEntity(userRegisterDto)).thenReturn(client);
         when(passwordEncoder.encode(null)).thenReturn("12E45FQFD452FFQ331");
         when(clientRepository.save(client)).thenReturn(savedClient);
 
-        String result = clientService.createNewClient(dto);
+        String result = clientService.createNewClient(userRegisterDto);
 
         assertThat(result).isNotEmpty();
 
-        verify(clientRepository, times(1)).countByEmail(dto.getEmail());
-        verify(clientMapper, times(1)).convertUserRegistrationDataRequestDtoToClientEntity(dto);
+        verify(clientRepository, times(1)).countByEmail(userRegisterDto.getEmail());
+        verify(clientMapper, times(1)).convertUserRegistrationDataRequestDtoToClientEntity(userRegisterDto);
         verify(passwordEncoder, times(1)).encode(null);
         verify(clientRepository, times(1)).save(client);
     }
 
     @Test
-    public void createNewClientShouldReturnErrorIfEmailIsAlreadyExists(){
-        UserRegisterDataRequestDto dto = UserRegisterDataRequestDto.builder()
-                .email("test1user@gmail.com")
-                .name("Name")
-                .surname("Surname")
-                .password("qwerty123")
-                .repeatedPassword("qwerty123")
-                .build();
+    public void createNewClientShouldReturnErrorIfEmailIsAlreadyExists() {
+        when(clientRepository.countByEmail(userRegisterDto.getEmail())).thenReturn(1);
 
-        when(clientRepository.countByEmail(dto.getEmail())).thenReturn(1);
+        assertThrows(InvalidRequestDataException.class, () -> clientService.createNewClient(userRegisterDto), USER_EMAIL_ALREADY_EXISTS);
 
-        assertThrows(InvalidRequestDataException.class, () -> clientService.createNewClient(dto), USER_EMAIL_ALREADY_EXISTS);
-
-        verify(clientRepository, times(1)).countByEmail(dto.getEmail());
+        verify(clientRepository, times(1)).countByEmail(userRegisterDto.getEmail());
     }
 
     @Test
-    public void createNewClientShouldReturnErrorIfPasswordMismatch(){
-        UserRegisterDataRequestDto dto = UserRegisterDataRequestDto.builder()
-                .email("test1user@gmail.com")
-                .name("Name")
-                .surname("Surname")
-                .password("qwerty123")
-                .repeatedPassword("qwerty1234")
-                .build();
+    public void createNewClientShouldReturnErrorIfPasswordMismatch() {
+        when(clientRepository.countByEmail(userRegisterDtoWithWrongPas.getEmail())).thenReturn(0);
 
-        when(clientRepository.countByEmail(dto.getEmail())).thenReturn(0);
+        assertThrows(InvalidRequestDataException.class, () -> clientService.createNewClient(userRegisterDtoWithWrongPas), PASSWORDS_MISMATCH);
 
-        assertThrows(InvalidRequestDataException.class, () -> clientService.createNewClient(dto), PASSWORDS_MISMATCH);
-
-        verify(clientRepository, times(1)).countByEmail(dto.getEmail());
+        verify(clientRepository, times(1)).countByEmail(userRegisterDtoWithWrongPas.getEmail());
     }
 
     @Test
-    public void authorizeClientShouldReturnTrue(){
-        UserLoginDataRequestDto dto = UserLoginDataRequestDto.builder()
-                .email("test1user@gmail.com")
-                .password("qwerty123")
-                .build();
+    public void authorizeClientShouldReturnTrue() {
+        when(clientRepository.findByEmail(userLoginDto.getEmail())).thenReturn(Optional.of(loginClient));
+        when(passwordEncoder.matches(userLoginDto.getPassword(), loginClient.getPassword())).thenReturn(true);
 
-        Client client = Client.builder()
-                .id(1L)
-                .email(dto.getEmail())
-                .password(dto.getPassword())
-                .build();
+        assertThat(clientService.authorizeClient(userLoginDto)).isTrue();
 
-        when(clientRepository.findByEmail(dto.getEmail())).thenReturn(Optional.of(client));
-        when(passwordEncoder.matches(dto.getPassword(), client.getPassword())).thenReturn(true);
-
-        assertThat(clientService.authorizeClient(dto)).isTrue();
-
-        verify(clientRepository, times(1)).findByEmail(dto.getEmail());
-        verify(passwordEncoder, times(1)).matches(dto.getPassword(), client.getPassword());
+        verify(clientRepository, times(1)).findByEmail(userLoginDto.getEmail());
+        verify(passwordEncoder, times(1)).matches(userLoginDto.getPassword(), loginClient.getPassword());
     }
 
     @Test
-    public void authorizeClientShouldReturnErrorIfClientNotExists(){
-        UserLoginDataRequestDto dto = UserLoginDataRequestDto.builder()
-                .email("test1user@gmail.com")
-                .password("qwerty123")
-                .build();
+    public void authorizeClientShouldReturnErrorIfClientNotExists() {
+        when(clientRepository.findByEmail(userLoginDto.getEmail())).thenReturn(Optional.empty());
 
-        when(clientRepository.findByEmail(dto.getEmail())).thenReturn(Optional.empty());
+        assertThrows(InvalidRequestDataException.class, () -> clientService.authorizeClient(userLoginDto), WRONG_CREDENTIALS);
 
-        assertThrows(InvalidRequestDataException.class , () -> clientService.authorizeClient(dto), WRONG_CREDENTIALS);
-
-        verify(clientRepository, times(1)).findByEmail(dto.getEmail());
+        verify(clientRepository, times(1)).findByEmail(userLoginDto.getEmail());
     }
 
     @Test
-    public void authorizeClientShouldReturnFalse(){
-        UserLoginDataRequestDto dto = UserLoginDataRequestDto.builder()
-                .email("test1user@gmail.com")
-                .password("qwerty123")
-                .build();
+    public void authorizeClientShouldReturnFalse() {
+        when(clientRepository.findByEmail(userLoginDto.getEmail())).thenReturn(Optional.of(loginClient));
+        when(passwordEncoder.matches(userLoginDto.getPassword(), loginClient.getPassword())).thenReturn(false);
 
-        Client client = Client.builder()
-                .id(1L)
-                .email(dto.getEmail())
-                .password(dto.getPassword().toUpperCase(Locale.ROOT))
-                .build();
+        assertThat(clientService.authorizeClient(userLoginDto)).isFalse();
 
-        when(clientRepository.findByEmail(dto.getEmail())).thenReturn(Optional.of(client));
-        when(passwordEncoder.matches(dto.getPassword(), client.getPassword())).thenReturn(false);
-
-        assertThat(clientService.authorizeClient(dto)).isFalse();
-
-        verify(clientRepository, times(1)).findByEmail(dto.getEmail());
-        verify(passwordEncoder, times(1)).matches(dto.getPassword(), client.getPassword());
+        verify(clientRepository, times(1)).findByEmail(userLoginDto.getEmail());
+        verify(passwordEncoder, times(1)).matches(userLoginDto.getPassword(), loginClient.getPassword());
     }
 }
