@@ -18,7 +18,7 @@ public class OrderControllerImpl implements OrderController {
     private final OrderService orderService;
 
     @Override
-    public ResponseEntity<List<OrderResponseDto>> returnOrdersAll() {
+    public ResponseEntity<List<OrderResponseDto>> returnAllOrders() {
         return new ResponseEntity<>(orderService.returnAllOrders(), HttpStatus.OK);
     }
 

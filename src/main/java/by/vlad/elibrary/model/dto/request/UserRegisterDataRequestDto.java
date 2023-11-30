@@ -1,6 +1,7 @@
 package by.vlad.elibrary.model.dto.request;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
+import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.EqualsAndHashCode;
@@ -23,9 +24,11 @@ public class UserRegisterDataRequestDto {
     @JsonProperty("email")
     private String email;
 
+    @NotNull
     @JsonProperty("password")
     private String password;
 
+    @NotNull
     @JsonProperty("repeated_password")
     private String repeatedPassword;
 }

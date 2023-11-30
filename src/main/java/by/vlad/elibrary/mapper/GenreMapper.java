@@ -11,9 +11,10 @@ import java.util.List;
 @Mapper(componentModel = MappingConstants.ComponentModel.SPRING)
 public interface GenreMapper {
 
+    Genre fromDtoToEntity(GenreRequestDto dto);
+
     GenreResponseDto fromEntityToDto(Genre genre);
 
     List<GenreResponseDto> fromEntitiesToDtos(List<Genre> genres);
 
-    Genre fromDtoToEntity(GenreRequestDto dto);
 }

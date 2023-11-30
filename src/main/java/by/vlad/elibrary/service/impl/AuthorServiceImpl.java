@@ -19,6 +19,7 @@ import static by.vlad.elibrary.exception.util.ExceptionMessage.AUTHOR_NOT_FOUND;
 public class AuthorServiceImpl implements BookComponentsService<AuthorResponseDto, AuthorRequestDto> {
 
     private final AuthorRepository authorRepository;
+
     private final AuthorMapper authorMapper;
 
     @Override
@@ -50,7 +51,9 @@ public class AuthorServiceImpl implements BookComponentsService<AuthorResponseDt
         if (!authorRepository.existsById(dto.getId())){
             throw new InvalidRequestDataException(AUTHOR_NOT_FOUND);
         }
+
         Author updatedAuthor = authorRepository.save(authorMapper.fromDtoToEntity(dto));
+
         return authorMapper.fromEntityToDto(updatedAuthor);
     }
 }

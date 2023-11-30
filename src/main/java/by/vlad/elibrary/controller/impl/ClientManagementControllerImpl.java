@@ -13,11 +13,14 @@ import org.springframework.web.bind.annotation.RestController;
 
 import java.util.List;
 
+import static by.vlad.elibrary.exception.util.ExceptionMessage.WRONG_CREDENTIALS;
+
 @RestController
 @RequiredArgsConstructor
 public class ClientManagementControllerImpl implements ClientManagementController {
 
     private final ClientService clientService;
+
     private final JwtService jwtService;
 
     @Override
@@ -26,11 +29,11 @@ public class ClientManagementControllerImpl implements ClientManagementControlle
     }
 
     @Override
-    public ResponseEntity<Void> loginClient(UserLoginDataRequestDto dto) {
+    public ResponseEntity<String> loginClient(UserLoginDataRequestDto dto) {
 
         boolean isAuthorized = clientService.authorizeClient(dto);
 
-        ResponseEntity<Void> responseEntity;
+        ResponseEntity<String> responseEntity;
 
         if (isAuthorized){
             String token = jwtService.generateToken(clientService.loadUserByUsername(dto.getEmail()));
@@ -41,7 +44,7 @@ public class ClientManagementControllerImpl implements ClientManagementControlle
 
             responseEntity = new ResponseEntity<>(headers, HttpStatus.OK);
         }else{
-            responseEntity = new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+            responseEntity = new ResponseEntity<>(WRONG_CREDENTIALS, HttpStatus.BAD_REQUEST);
         }
 
         return responseEntity;

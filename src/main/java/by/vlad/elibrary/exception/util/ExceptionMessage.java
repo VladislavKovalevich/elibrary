@@ -20,6 +20,8 @@ public class ExceptionMessage {
     public static final String USER_EMAIL_ALREADY_EXISTS = "User with this email is already exists";
     public static final String PASSWORDS_MISMATCH = "Passwords must be identical";
 
+    public static final String WRONG_CREDENTIALS = "Wrong email or password";
+
     private ExceptionMessage(){
     }
 }
