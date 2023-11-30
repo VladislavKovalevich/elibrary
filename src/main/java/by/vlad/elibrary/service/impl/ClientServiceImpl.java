@@ -29,6 +29,10 @@ import static by.vlad.elibrary.exception.util.ExceptionMessage.PASSWORDS_MISMATC
 import static by.vlad.elibrary.exception.util.ExceptionMessage.USER_EMAIL_ALREADY_EXISTS;
 import static by.vlad.elibrary.exception.util.ExceptionMessage.WRONG_CREDENTIALS;
 
+import static by.vlad.elibrary.exception.util.ExceptionMessage.CLIENT_NOT_FOUND;
+import static by.vlad.elibrary.exception.util.ExceptionMessage.PASSWORDS_MISMATCH;
+import static by.vlad.elibrary.exception.util.ExceptionMessage.USER_EMAIL_ALREADY_EXISTS;
+
 @Service
 @RequiredArgsConstructor
 public class ClientServiceImpl implements ClientService {
